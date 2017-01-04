@@ -1,23 +1,30 @@
 'use strict';
 
 const buttonList = document.querySelectorAll('.key');
-let currentKey;
+let currentEl;
 
-const playNote = key => document.querySelector(`audio[data-key=${key}]`).play();
-const resetClassName = nodeList => nodeList.forEach(each => each.className = "key");
+const playNote = key => {
+  let audio = document.querySelector(`audio[data-key=${key}]`);
+  if (!audio) return;
+  audio.currentTime = 0;
+  audio.play();
+};
 
-const addPlayingClass = el => {
-  resetClassName(buttonList);
-  el.className += " playing ";
+// function resetClassName(e) {
+const resetClassName = (evt) => {
+  if (evt.propertyName !== 'transform') return;
+  evt.path[0].classList.remove('playing');
+};
 
-  setTimeout(() => {
-    resetClassName(buttonList);
-  }, 200)
+const addPlayingClass = key => {
+  currentEl = document.querySelector(`div[data-key=${key}]`);
+  currentEl.classList.add('playing');
 };
 
 document.addEventListener('keydown', evt => {
-  buttonList.forEach(each => {
-    (each.dataset.key === evt.key) ? playNote(evt.key): false;
-    (each.dataset.key === evt.key) ? addPlayingClass(each): false;
-  });
+  playNote(evt.key);
+  addPlayingClass(evt.key);
 });
+
+// Add an event listener to each div for the end of the css transfromation
+buttonList.forEach(each => each.addEventListener('transitionend', resetClassName));
