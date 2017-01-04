@@ -3,6 +3,7 @@
 const buttonList = document.querySelectorAll('.key');
 let recordedKeyList = [];
 let currentEl;
+let recordBtnTimestamp;
 let recordMode = false;
 
 const recordModeToggle = () => recordMode = !recordMode;
@@ -31,18 +32,18 @@ const addPlayingClass = key => {
   currentEl.classList.add('playing');
 };
 
-const startRecording = (evt) => {
-  recordedKeyList.push(evt);
+const startRecording = (keyObj) => {
+  recordedKeyList.push(keyObj);
 };
 
 const playBackRecordedList = () => {
   let counter = 0;
   recordedKeyList.forEach(each => {
       // Increment the timeout for each note
-      counter += 250;
+      counter = each.time - recordBtnTimestamp;
       setTimeout(() => {
-        playNote(each);
-        addPlayingClass(each);
+        playNote(each.key);
+        addPlayingClass(each.key);
       }, counter);
   });
 };
@@ -52,7 +53,8 @@ const createRecordButton = () => {
   const recordBtn = document.createElement('button');
   recordBtn.innerText = 'Record';
   document.body.children[0].append(recordBtn);
-  recordBtn.addEventListener('click', () => {
+  recordBtn.addEventListener('click', (evt) => {
+    recordBtnTimestamp = evt.timeStamp;
     recordedKeyList = [];
     recordModeToggle()
     document.body.children[0].removeChild(recordBtn);
@@ -73,20 +75,23 @@ const createPlayButton = () => {
   });
 };
 
-
 document.addEventListener('keydown', evt => {
+  console.dir(evt.timeStamp);
   // Determine if the key that is pressed is a available key
   if (!availableKeyList().includes(evt.key)) {
     return;
   };
-
+  let keyObj = {
+    key: evt.key,
+    time: evt.timeStamp
+  };
   if (!recordMode) {
-    playNote(evt.key);
-    addPlayingClass(evt.key);
+    playNote(keyObj.key);
+    addPlayingClass(keyObj.key);
   } else {
-    startRecording(evt.key);
-    playNote(evt.key);
-    addPlayingClass(evt.key);
+    startRecording(keyObj);
+    playNote(keyObj.key);
+    addPlayingClass(keyObj.key);
   };
 });
 
