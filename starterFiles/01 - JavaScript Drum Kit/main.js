@@ -76,7 +76,6 @@ const createPlayButton = () => {
 };
 
 document.addEventListener('keydown', evt => {
-  console.dir(evt.timeStamp);
   // Determine if the key that is pressed is a available key
   if (!availableKeyList().includes(evt.key)) {
     return;
